@@ -21,6 +21,9 @@ import android.os.Bundle;
 import android.widget.TextView;
 
 import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.Iterator;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -35,9 +38,30 @@ public class MainActivity extends AppCompatActivity {
 
         TextView textView = (TextView) findViewById(R.id.textView);
         try {
-            textView.setText(ahandler.getExtraData().toString(2));
+            JSONObject json = ahandler.getExtraData();
+            Iterator<String> it = json.keys();
+            if ( it.hasNext() ) {
+                setText(textView, json.toString(2));
+            } else {
+                setText(textView, ClipboardUtil.fromClipboard(this));
+            }
         } catch (JSONException e) {
             e.printStackTrace();
+        }
+    }
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        TextView textView = (TextView) findViewById(R.id.textView);
+        setText(textView, ClipboardUtil.fromClipboard(this));
+    }
+
+    private void setText(TextView textView, String txt) {
+        if (txt != null) {
+            textView.setText(txt.substring(0, Math.min(txt.length(), 2048)));
+        } else {
+            textView.setText("");
         }
     }
 }
